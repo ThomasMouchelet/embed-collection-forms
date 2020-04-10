@@ -28,6 +28,11 @@ class Tag
      */
     private $tasks;
 
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $order_tag;
+
     public function __construct()
     {
         $this->tasks = new ArrayCollection();
@@ -73,6 +78,18 @@ class Tag
             $this->tasks->removeElement($task);
             $task->removeTag($this);
         }
+
+        return $this;
+    }
+
+    public function getOrderTag(): ?int
+    {
+        return $this->order_tag;
+    }
+
+    public function setOrderTag(int $order_tag): self
+    {
+        $this->order_tag = $order_tag;
 
         return $this;
     }

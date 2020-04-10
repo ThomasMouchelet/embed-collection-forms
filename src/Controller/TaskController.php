@@ -23,7 +23,10 @@ class TaskController extends AbstractController
     {
         if (!$task){
             $task = new Task();
+            dump('not');
         }
+
+        dump($task);
 
         $form = $this->createForm(TaskType::class, $task);
         $form->handleRequest($request);
@@ -38,11 +41,12 @@ class TaskController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
             $em->persist($task);
             $em->flush();
+
+            return $this->redirectToRoute("task_edit", ["id" => $task->getId()]);
         }
 
         return $this->render('task/form.html.twig', [
             'form' => $form->createView(),
-            'editMode' => $task->getId() !== null
         ]);
     }
 

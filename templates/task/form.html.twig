@@ -5,27 +5,29 @@
 {{ form_start(form) }}
     {{ form_row(form.description) }}
 
-<h3>Tags</h3>
+    <h3>Tags</h3>
 
-<ul id="sortable" class="tags" data-prototype="{{ form_widget(form.tags.vars.prototype)|e('html_attr') }}">
-
-    {% for tag in form.tags %}
-        <li>{{ form_row(tag.name) }}</li>
-    {% endfor %}
+    <ul id="simpleList" class="tags list-group" data-prototype="{{ form_widget(form.tags.vars.prototype)|e('html_attr') }}">
+        {% for tag in form.tags %}
+            <li class="list-group-item">{{ form_row(tag.name) }} {{ form_row(tag.order_tag) }}</li>
+        {% endfor %}
+    </ul>
+    <button type="button" id="add_tag_link">Add a tag</button>
     <button type="submit">Envoyer</button>
-</ul>
 {{ form_end(form) }}
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
     <script>
+
         jQuery(document).ready(function($){
             var $collectionHolder;
             // setup an "add a tag" link
-            var $addTagButton = $('<button type="button" class="add_tag_link">Add a tag</button>');
+            var $addTagButton = $('#add_tag_link');
 
-            var $newLinkLi = $('<li></li>').append($addTagButton);
-            // Get the ul that holds the collection of tags
+            var $newLinkLi = $('#simpleList');
+
             $collectionHolder = $('ul.tags');
 
             $collectionHolder.find('li').each(function() {
@@ -36,25 +38,33 @@
 
             $collectionHolder.data('index', $collectionHolder.find('input').length);
             $addTagButton.on('click', function(e) {
-                addTagForm($collectionHolder, $newLinkLi);
+                    addTagForm($collectionHolder, $newLinkLi);
             });
 
-            $( "#sortable" ).sortable();
-            $( "#sortable" ).disableSelection();
+            $("#simpleList").sortable({
+                update : function () {
+                    setOrder()
+                }
+            });
+
+            function setOrder() {
+                var order = $('#simpleList').children()
+                order.map(function(k){
+                    let li = order[k]
+                    $(li).find("input[type=number]").val(k)
+                })
+            }
 
             function addTagForm($collectionHolder, $newLinkLi) {
-                // Get the data-prototype explained earlier
                 var prototype = $collectionHolder.data('prototype');
-                console.log(prototype)
-                // get the new index
                 var index = $collectionHolder.data('index');
                 var newForm = prototype;
                 newForm = newForm.replace(/__name__/g, index);
                 $collectionHolder.data('index', index + 1);
-                var $newFormLi = $('<li></li>').append(newForm);
-                $newLinkLi.before($newFormLi);
-
+                var $newFormLi = $('<li class="list-group-item"></li>').append(newForm);
+                $newLinkLi.append($newFormLi);
                 addTagFormDeleteLink($newFormLi);
+                setOrder()
             }
 
             function addTagFormDeleteLink($tagFormLi) {
@@ -63,6 +73,7 @@
                 $removeFormButton.on('click', function(e) {
                     $tagFormLi.remove();
                 });
+                setOrder()
             }
         });
     </script>
